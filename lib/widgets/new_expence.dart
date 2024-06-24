@@ -1,11 +1,14 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 
-import 'package:expenses_app/models/expense.dart';
+import 'package:expenses_app/models/expense.dart' as ex;
 import 'package:intl/intl.dart';
 
 class NewExpense extends StatefulWidget {
-  const NewExpense({super.key});
+  const NewExpense({
+    super.key,
+    required this.addExpense,
+  });
+  final Function(ex.Expense expense) addExpense;
 
   @override
   State<NewExpense> createState() => _NewExpenseState();
@@ -16,8 +19,7 @@ class _NewExpenseState extends State<NewExpense> {
   final DateFormat _formatter = DateFormat.yMd();
   final _titleControler = TextEditingController();
   final _amountControler = TextEditingController();
-  Object? _selectedCategory = Category.food;
-
+  ex.Category? _selectedCategory = ex.Category.food;
   @override
   void dispose() {
     super.dispose();
@@ -88,7 +90,7 @@ class _NewExpenseState extends State<NewExpense> {
               DropdownButton(
                 value: _selectedCategory,
                 items: [
-                  ...Category.values.map(
+                  ...ex.Category.values.map(
                     (e) => DropdownMenuItem(
                       value: e,
                       child: Text(e.name),
@@ -130,21 +132,25 @@ class _NewExpenseState extends State<NewExpense> {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text("inValid Data"),
-          content: Text("the data you entered is invalid"),
+          title: const Text("inValid Data"),
+          content: const Text("the data you entered is invalid"),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(ctx);
               },
-              child: Text("Okey"),
+              child: const Text("Okey"),
             )
           ],
         ),
       );
     } else {
-      log(_titleControler.text);
-      log(_amountControler.text);
+      widget.addExpense(ex.Expense(
+          category: _selectedCategory!,
+          title: _titleControler.text,
+          cost: enteredAmount,
+          date: _selectedDate!));
+      Navigator.pop(context);
     }
   }
 }
